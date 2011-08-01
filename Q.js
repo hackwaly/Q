@@ -224,7 +224,7 @@ var Q = (function (){
         '~': BY_ELEMENT ? '/*^var #{N}H={};^*/var #{N}=#{C};while(#{N}=#{N}.previousElementSibling){' + TPL_TOPASS + '}' : '/*^var #{N}H={};^*/var #{N}=#{C};while(#{N}=#{N}.previousSibling){' + TPL_TOPASS + '}'
     };
     var TPL_MAIN = 'function(root, result){result=result||[];var qid=Q.qid,t,l=result.length;#{X}Q.qid=qid;return result;}';
-    var TPL_HELP = '/*^var #{N}L;^*/if(!#{N}L||!' + format(TPL_CONTAINS, ['#{N}L', '#{N}']) +'){#{X}#{N}L=#{N};}';
+    var TPL_HELP = '/*^var #{N}L;^*/if(!#{N}L||!(' + format(TPL_CONTAINS, ['#{N}L', '#{N}']) +')){#{X}#{N}L=#{N};}';
     var TPL_PUSH = 'result[l++]=#{N};';
     var TPL_TEST = {
         'T': TPL_XHTML +'/*^var #{N}T=!xhtml?("#{0}").toUpperCase():"#{0}";^*/#{N}.tagName==#{N}T',
