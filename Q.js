@@ -424,7 +424,6 @@ var Q = (function (){
 
     function compile(expr){
         var group = parse(expr);
-        // todo: 目前暂不支持group.
         var tags = {};
         var k = group.length;
         while (k --) {
@@ -471,16 +470,16 @@ var Q = (function (){
         return hash;
     };
     
-    function queryXML(expr, root){
+    function queryXML(expr, root, ret){
         throw ['NotImpl'];
     }
     var cache = {};
     var inQuery = false;
-    function query(expr, root){
+    function query(expr, root, ret){
         root = root || d;
         var doc = root.ownerDocument || root;
         if (!doc.getElementById) {
-            return queryXML(expr, root);
+            return queryXML(expr, root, ret);
         }
         var fn  = cache[expr] || (cache[expr] = compile(expr));
         if (!inQuery) {
@@ -488,11 +487,11 @@ var Q = (function (){
             if (!MUTATION) {
                 doc._Q_rev = Q.qid ++;
             }
-            var result = fn(root);
+            var result = fn(root, ret);
             inQuery = false;
             return result;
         } else {
-            return fn(root);
+            return fn(root, ret);
         }
     }
 
@@ -551,8 +550,8 @@ var Q = (function (){
     Q._isXHTML = function (doc){
         return doc.documentElement.tagName == 'html';
     };
-    function Q(expr, root){
-        return query(expr, root);
+    function Q(expr, root, ret){
+        return query(expr, root, ret);
     }
     return Q;
 })();
