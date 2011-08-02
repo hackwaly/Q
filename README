@@ -2,6 +2,7 @@
 Q(expr, context, result, seed)
 Q.matches
 支持Sizzle特别的setFilter伪类如:even,:first,:last,:lt...
+支持复杂的:not和:has选择器（和sizzle一样）
 
 2, 结果的正确性
 Sizzle在某些选择器上由于查询策略的原因，会返回错误的结果
@@ -21,3 +22,4 @@ div.querySelectorAll("body *")会返回节点
 排除不必要的运算，如sizzle中的:lt伪类，这里查询时找够节点就会跳出查询，不会继续做无谓的查询
 
 可以参考slickspeed.
+http://jselector.googlecode.com/svn/trunk/jsslickspeed/index.html
