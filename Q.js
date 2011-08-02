@@ -538,6 +538,21 @@ var Q = (function (){
         }
         return hash;
     };
+    var _slice = Array.prototype.slice;
+    Q._toArray1 = function (staticNodeList){
+        var k = staticNodeList.length;
+        var a = new Array(k);
+        while (k --) {
+            a[k] = staticNodeList[k];
+        }
+        return a;
+    };
+    Q._toArray = function (staticNodeList){
+        try {
+            return _slice.call(staticNodeList, 0);
+        } catch(ex){}
+        return (Q._toArray = Q._toArray1)(staticNodeList);
+    };
     
     function queryXML(expr, root, ret){
         throw ['NotImpl'];
@@ -550,6 +565,8 @@ var Q = (function (){
         var doc = root.ownerDocument || root;
         if (!doc.getElementById) {
             return queryXML(expr, root, result);
+        } else if (root === doc && doc.querySelectorAll) {
+            ret = Q._toArray(doc.querySelectorAll(expr));
         }
         var fn  = cache[expr] || (cache[expr] = compile(expr));
         if (!inQuery) {
