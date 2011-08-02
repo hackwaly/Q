@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<title>SlickSpeed Selectors Test</title>
+	<link rel="stylesheet" href="style.css" type="text/css" media="screen">
+  <script src="selectors.js" type="text/javascript"></script>
+  <script src="config.js" type="text/javascript"></script> 
+</head>
+
+<body>
+	
+<div id="container">
+	
+	<div id="controls">
+		<a class="stop" href="#">stop tests</a>
+		<a class="start" href="#">start tests</a>
+	</div>
+	
+<h1><span>SlickSpeed</span></h1>
+<h2>Speed/validity selectors test for frameworks.</h2>
+<p>Every framework runs in his own iFrame, thus no conflicts can happen. Tests are run selector by selector, with an interval to prevent the browser from freeezing.</p>
+<p>Tests are run in a neutral environment, no library or framework is included in the main javascript test.</p>
+<p>Under firefox, disable firebug for more accurate results, as most frameworks could throw warnings, slowing down the dom query process.</p>
+
+<p>Tests are run against a local copy of <a href="template.html">this document</a>.</p>
+
+<div id="addIframe"></div>
+
+<table>
+
+	<thead id="thead">
+		<tr id="selectors">
+			<th class="selectors-title">selectors</th>
+		</tr>
+	</thead>
+	<tbody id="tbody"></tbody>
+	
+	<tfoot id="tfoot">
+		<tr id="tfooter">
+		       <th class="score-title"><strong>final time (less is better)</strong></th>
+		</tr>
+	</tfoot>
+
+</table>
+
+<h2>Legend</h2>
+
+<table id="legend">
+
+	<tr>
+		<th>the faster</th>
+		<th>the slower</th>
+		<th>exception thrown or zero elements found</th>
+		<th>different returned elements</th>
+	</tr>
+
+	<tr>
+		<td class="good"></td>
+		<td class="bad"></td>
+		<td class="exception"></td>
+		<td class="mismatch"></td>
+	</tr>
+
+</table>
+
+<div id="footer">
+  <p class="footer">copyright &copy; 2009 <a href="http://mad4milk.net">Valerio Proietti</a> | MIT License | <a href="http://github.com/kamicane/slickspeed/">download from github</a><br/>
+  modified by <a href="http://shiriru.blogspot.com/">shirirules</a> under the same Licence</p>
+</div>
+</div>
+  <script type="text/javascript">document.querySelectorAll = null;</script>
+  <script src="system/slickspeed.js" type="text/javascript"></script>
+</body>
+</html>
