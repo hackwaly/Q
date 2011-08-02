@@ -1,0 +1,23 @@
+1, 和Sizzle的兼容
+Q(expr, context, result, seed)
+Q.matches
+支持Sizzle特别的setFilter伪类如:even,:first,:last,:lt...
+
+2, 结果的正确性
+Sizzle在某些选择器上由于查询策略的原因，会返回错误的结果
+考虑在这样的html上查询
+"<div/><h1/><h1/><div/>"
+查询 div~div : 应返回1个节点
+查询 h1~div: 应返回1个节点
+查询 div+h1~div: 应返回一个节点，但是Sizzle没有找到节点
+
+另外
+div.querySelectorAll("body *")会返回节点
+所以在以元素为context的查询中不使用querySelectorAll进行优化
+
+3, 性能
+将选择器编译成函数再进行查询，除了第一次查询需要jit编译之外，以后每次查询都是最快的速度
+查询策略引擎会分析选择器的组成，选择最恰当的查询策略（从开始查还是从末尾查还是从中间开始）
+排除不必要的运算，如sizzle中的:lt伪类，这里查询时找够节点就会跳出查询，不会继续做无谓的查询
+
+可以参考slickspeed.
