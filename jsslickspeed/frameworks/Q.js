@@ -597,10 +597,10 @@ var Q = (function (){
         }
         var doc = root.ownerDocument || root;
         var node = doc.getElementById(id);
-        if (!Q.contains(root, node) || (IE678 && (node.id === id || node.getAttributeNode('id').nodeValue === id))) {
-            return null;
+        if (node && Q.contains(root, node) && (!IE678 || (node.id === id || node.getAttributeNode('id').nodeValue === id))) {
+            return node;
         }
-        return node;
+        return null;
     };
     Q._in = function (nodes, nodeSet){
         var hash = Q._hash(nodeSet);
