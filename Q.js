@@ -559,14 +559,13 @@ var Q = (function (){
     }
     var cache = {};
     var inQuery = false;
-    function query(expr, root, result, seed){
-        root = root || d;
-        var ret;
+    function query(expr, root){
         var doc = root.ownerDocument || root;
         if (!doc.getElementById) {
-            return queryXML(expr, root, result);
-        } else if (root === doc && doc.querySelectorAll) {
-            ret = Q._toArray(doc.querySelectorAll(expr));
+            return queryXML(expr, root);
+        }
+        if (root === doc && doc.querySelectorAll) {
+            try { return Q._toArray(doc.querySelectorAll(expr)); } catch(ex){}
         }
         var fn  = cache[expr] || (cache[expr] = compile(expr));
         if (!inQuery) {
@@ -577,17 +576,9 @@ var Q = (function (){
             ret = fn(root);
             inQuery = false;
         } else {
-            ret= fn(root);
+            ret = fn(root);
         }
-        if (seed) {
-            ret = Q._in(seed, ret);
-        }
-        if (result) {
-            ret.push.apply(result, ret);
-        } else {
-            result = ret;
-        }
-        return result;
+        return ret;
     }
 
     Q.qid = 1;
@@ -671,7 +662,17 @@ var Q = (function (){
         return doc.documentElement.nodeName == 'html';
     };
     function Q(expr, root, ret, seed){
-        return query(expr, root, ret, seed);
+        root = root || d;
+        var ret = query(expr, root);
+        if (seed) {
+            ret = Q._in(seed, ret);
+        }
+        if (result) {
+            ret.push.apply(result, ret);
+        } else {
+            result = ret;
+        }
+        return result;
     }
     return Q;
 })();
