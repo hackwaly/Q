@@ -561,6 +561,7 @@ var Q = (function (){
     var inQuery = false;
     function query(expr, root){
         var doc = root.ownerDocument || root;
+        var ret;
         if (!doc.getElementById) {
             return queryXML(expr, root);
         }
@@ -661,7 +662,7 @@ var Q = (function (){
     Q._isXHTML = function (doc){
         return doc.documentElement.nodeName == 'html';
     };
-    function Q(expr, root, ret, seed){
+    function Q(expr, root, result, seed){
         root = root || d;
         var ret = query(expr, root);
         if (seed) {
