@@ -447,9 +447,9 @@ var Q = (function (){
                 obj.last = 1;
             }
             if (simple.kind == ':lt') {
-                obj.lt = obj.lt === undefined ? simple[0] : Math.min(obj.lt, simple[0]);
+                obj.lt = obj.lt == null ? simple[0] : Math.min(obj.lt, simple[0]);
             } else if (simple.kind == ':gt') {
-                obj.gt = obj.gt === undefined ? simple[0] : Math.max(obj.gt, simple[0]);
+                obj.gt = obj.gt == null ? simple[0] : Math.max(obj.gt, simple[0]);
             } else if (simple.kind == ':eq' || simple.kind == ':nth') {
                 if (obj.eq && obj.eq !== simple[0]) {
                     obj.no = true;
