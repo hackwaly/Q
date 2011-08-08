@@ -135,6 +135,7 @@ var Q = (function (){
             }
             //remark: 这里是为了支持sizzle的setFilter系列
             if (regPos.test(simple.kind)) {
+                simple[0] = Number(simple[0]) | 0;
                 var newSimple = make(simple.kind, simple.slice(0));
                 simple.kind = '*';
                 if (!seq.allPoses) {
@@ -289,17 +290,7 @@ var Q = (function (){
         ':checkbox': TPL_INPUT_T + '#{N}.nodeName===input_t&&#{N}.type==="checkbox"',
         ':file': TPL_INPUT_T + '#{N}.nodeName===input_t&&#{N}.type==="file"',
         ':password': TPL_INPUT_T + '#{N}.nodeName===input_t&&#{N}.type==="password"',
-        ':image': TPL_INPUT_T + '#{N}.nodeName===input_t&&#{N}.type==="image"',
-
-        // setFilters
-        ':first': 'if(pos===0){result[0]=#{N};break BQ;}',
-        ':last': 'result[0]=#{N};',
-        ':eq': 'if(pos===#{0}){result[0]=#{N};break BQ;}',
-        ':nth': 'if(pos===#{0}){result[0]=#{N};break BQ;}',
-        ':lt': 'if(pos<#{0}){#{X}}else break BQ;',
-        ':gt': 'if(pos>#{0}){#{X}}',
-        ':even': 'if(pos%2===0){#{X}}',
-        ':odd': 'if(pos%2===1){#{X}}'
+        ':image': TPL_INPUT_T + '#{N}.nodeName===input_t&&#{N}.type==="image"'
     };
 
     function genAttrCode(attr){
@@ -307,7 +298,7 @@ var Q = (function (){
         if (attr == 'class') return '#{N}.className';
         if (attr == 'type') return '#{N}.getAttribute("type")';
         if (attr == 'href') return '#{N}.getAttribute("href",2)';
-        return '#{N}["' + attr + '"]||#{N}.getAttribute("' + attr + '")';
+        return '(#{N}["' + attr + '"]||#{N}.getAttribute("' + attr + '"))';
     }
 
     function genTestCode(simple){
@@ -444,22 +435,57 @@ var Q = (function (){
         }
         return format(code, { X: nextCode });
     }
-    //todo: 把其他的genXXX函数改成这样
-    function genThatCode(seq, thenCode){
+    
+    function genThatCode(seq){
+        var obj = {};
         var k = seq.length;
         while (k --) {
-            var tpl = TPL_TEST[seq[k].kind];
-            thenCode = format(tpl, { X: thenCode, 0: seq[k][0] });
+            var simple = seq[k];
+            if (simple.kind == ':first') {
+                simple = make(':nth', [0]);
+            } else if (simple.kind == ':last') {
+                obj.last = 1;
+            }
+            if (simple.kind == ':lt') {
+                obj.lt = obj.lt === undefined ? simple[0] : Math.min(obj.lt, simple[0]);
+            } else if (simple.kind == ':gt') {
+                obj.gt = obj.gt === undefined ? simple[0] : Math.max(obj.gt, simple[0]);
+            } else if (simple.kind == ':eq' || simple.kind == ':nth') {
+                if (obj.eq && obj.eq !== simple[0]) {
+                    obj.no = true;
+                } else obj.eq = simple[0];
+            } else if (simple.kind == ':even' || simple.kind == ':odd') {
+                obj[simple.kind.slice(1)] = 1;
+            }
         }
-        return thenCode;
+        if ((obj.lt != null && obj.eq != null && obj.eq >= obj.lt) || (obj.lt != null && obj.gt != null && obj.lt <= obj.gt) || (obj.even && obj.odd)) {
+            obj.no = 1;
+        }
+        
+        if (obj.no) {
+            return '/*^break BQ;^*/';
+        }
+        var buff = [];
+        if (obj.even) {
+            buff.push('pos%2===0');
+        } else if (obj.odd) {
+            buff.push('pos%2===1');
+        }
+        var code = obj.eq == null ? TPL_PUSH : 'if(pos===' + obj.eq + '){result=[#{N}];break BQ;}';
+        if (obj.gt != null) {
+            buff.push('pos>'+obj.gt);
+        }
+        code = buff.length ? 'if (' + buff.join('&&') + '){' + code + '}' : code;
+        code = obj.lt != null ? 'if (pos<' + obj.lt + '){' + code + '}else break BQ;' : code;
+        if (obj.last) {
+            code += '/*$result=result.slice(-1);$*/';
+        }
+        return code;
     }
     function genCode(chain){
         var parts = slice(chain);
 
-        var thenCode = TPL_PUSH;
-        if (chain.allPoses) {
-            thenCode = TPL_POS + 'pos++;' + genThatCode(chain.allPoses, TPL_PUSH);
-        }
+        var thenCode = chain.allPoses ? TPL_POS + 'pos++;' + genThatCode(chain.allPoses) : TPL_PUSH;
         CTX_NGEN = 0;
         var code = '#{X}';
         
@@ -504,11 +530,15 @@ var Q = (function (){
                 tags = null;
             }
             var hash = {};
-            var buff = [];
+            var pres = [];
+            var posts = [];
             code = code.replace(/\/\*\^(.*?)\^\*\//g, function (m, p){
-                return (hash[p] || (hash[p] = buff.push(p)), '');
+                return (hash[p] || (hash[p] = pres.push(p)), '');
             });
-            code = format(TPL_MAIN, { X: buff.join('') + code });
+            code = code.replace(/\/\*\$(.*?)\$\*\//g, function (m, p){
+                return (hash[p] || (hash[p] = posts.push(p)), '');
+            });
+            code = format(TPL_MAIN, { X: pres.join('') + code + posts.join('') });
             group[k] = new Function('Q', 'return(' + code + ')')(Q);
         }
         if (group.length == 1) {
@@ -554,7 +584,7 @@ var Q = (function (){
         return (Q._toArray = Q._toArray1)(staticNodeList);
     };
     
-    function queryXML(expr, root, ret){
+    function queryXML(expr, root){
         throw ['NotImpl'];
     }
     var cache = {};
@@ -565,7 +595,7 @@ var Q = (function (){
         if (!doc.getElementById) {
             return queryXML(expr, root);
         }
-        if (root === doc && doc.querySelectorAll) {
+        if (root === doc && doc.querySelectorAll && !/#/.test(expr)) {
             try { return Q._toArray(doc.querySelectorAll(expr)); } catch(ex){}
         }
         var fn  = cache[expr] || (cache[expr] = compile(expr));
@@ -589,7 +619,7 @@ var Q = (function (){
         }
         var doc = root.ownerDocument || root;
         var node = doc.getElementById(id);
-        if (node && Q.contains(root, node) && (!IE678 || (node.id === id || node.getAttributeNode('id').nodeValue === id))) {
+        if (node && ((root === doc) || Q.contains(root, node)) && (!IE678 || (node.id === id || node.getAttributeNode('id').nodeValue === id))) {
             return node;
         }
         return null;
