@@ -199,6 +199,11 @@ var Q = (function (){
                 }
             } else {
                 part.R = 'root';
+                part.isFirst = true;
+//                // 如果属于Q("~ span._result", el)这种情况
+//                if (part[part.length - 1].comb !== ' ') {
+//                    part.fI = part.length - 1;
+//                }
             }
         }
         // 如果没有找到任何一个可以用于find的seq.
@@ -427,7 +432,7 @@ var Q = (function (){
         return code;
     }
     function genPartCode(part, thenCode){
-        var code = genFindCode(part[part.fI], part.R, ' ');
+        var code = genFindCode(part[part.fI], part.R, !part.isFirst ? ' ' : null);
         var nextCode = genNextCode(part, thenCode);
         if (part.fI < part.length - 1) {
             var passCode = genLeftCode(part);
