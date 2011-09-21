@@ -14,10 +14,12 @@ var Q = (function (){
 
     var BY_ID1;
     var BY_CLASS;
+    var HAS_TEXT_CONTENT = false;
     var IE678 = window.ActiveXObject && !d.addEventListener;
     (function (){
         var div = d.createElement('div');
-        div.innerHTML = '<a name="d"></a><div id="d"></div>';
+        div.innerHTML = '.<a name="d"></a><div id="d"></div>';
+        HAS_TEXT_CONTENT = !!div.textContent;
         BY_ID1 = div.getElementsByTagName('*')["d"] === div.lastChild;
         div.innerHTML = '<div class="t e"></div><div class="t"></div>';
         div.lastChild.className = 'e';
@@ -267,7 +269,7 @@ var Q = (function (){
         '~=': '(t=#{A})&&(" "+t+" ").indexOf("#{P}")!==-1',
         
         ':element': '#{N}.nodeType==1',
-        ':contains': '(#{N}.textContent||#{N}.innerText).indexOf("#{0}")!==-1',
+        ':contains': '(#{N}.' + (HAS_TEXT_CONTENT ? 'textContent' : 'innerText') + '||"").indexOf("#{0}")!==-1',
         ':first-child': BY_ELEMENT ? '#{N}.parentNode.firstElementChild===#{N}' : 'Q._isFirstChild(#{N})',
         ':nth-child': TPL_DOC + '/*^var rev=doc._Q_rev||(doc._Q_rev=Q.qid++);^*/Q._index(#{N},#{0},#{1},rev)',
         ':last-child': BY_ELEMENT ? '#{N}.parentNode.lastElementChild===#{N}' : 'Q._isLastChild(#{N})',
