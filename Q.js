@@ -33,7 +33,7 @@ var Q = (function (){
     var PATTERN = /(?:\s*([ ~+>,])\s*)?(?:([:.#]?)((?:[\w\u00A1-\uFFFF-]|\\.)+|\*)|\[\s*((?:[\w\u00A1-\uFFFF-]|\\.)+)(?:\s*([~^$|*!]?=)\s*((['"]).*?\7|[^\]]*))?\s*\])/g;
     
     function trim(str){
-        return str.replace(/^\s*|\s*$/, '');
+        return str.replace(/^\s*|\s*$/g, '');
     }
     function make(kind, array){
         return (array.kind = kind, array);
