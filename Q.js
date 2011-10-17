@@ -621,12 +621,14 @@ var Q = (function (){
 
     Q.qid = 1;
     Q._byId = function (id, root){
+        if (root.getElementById) {
+            return root.getElementById(id);
+        }
         if (BY_ID1) {
             return root.getElementsByTagName('*')[id];
         }
-        var doc = root.ownerDocument || root;
-        var node = doc.getElementById(id);
-        if (node && ((root === doc) || Q.contains(root, node)) && (!IE678 || (node.id === id || node.getAttributeNode('id').nodeValue === id))) {
+        var node = root.ownerDocument.getElementById(id);
+        if (node && Q.contains(root, node) && (!IE678 || (node.id === id || node.getAttributeNode('id').nodeValue === id))) {
             return node;
         }
         return null;
