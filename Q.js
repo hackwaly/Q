@@ -505,7 +505,7 @@ var Q = (function (){
     }
 
     var documentOrder;
-    if (d.documentElement.sourceIndex) {
+    if (typeof d.documentElement.sourceIndex == 'number') {
         documentOrder = function (nodeA, nodeB){ return nodeA === nodeB ? 0 : nodeA.sourceIndex - nodeB.sourceIndex; };
     } else if (d.compareDocumentPosition) {
         documentOrder = function (nodeA, nodeB){ return nodeA === nodeB ? 0 : nodeB.compareDocumentPosition(nodeA) & 0x02 ? -1 : 1; };
